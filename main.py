@@ -4,16 +4,15 @@
     Todo:
         - Clean up code by separating into modules
         - Find some APIs to use for fun commands
-        - Add config file for bot token and other settings
 '''
 
 import asyncio
 import random
 import logging
-
 import requests
-import discord
+import json
 
+import discord
 from discord import app_commands, Intents, Client, Interaction
 
 class StrFmt:
@@ -87,7 +86,20 @@ client = Gato(intents=Intents.all())
 discord.utils.setup_logging()
 
 while True:
-    token = input("> ")
+    try:
+        with open("config.json") as config_file:
+            data = json.load(config_file)
+    except FileNotFoundError:
+        with open("config.json", "w") as config_file:
+            config_file.write(json.dumps( 
+                { 
+                    "token": "bot_token_here"
+                }, indent=4 ))
+
+        logging.error(f"Please fill out config.json file with your bot token!")
+        exit()
+
+    token = data["token"]
 
     r = requests.get("https://discord.com/api/v10/users/@me", headers={
         "Authorization": f"Bot {token}"
