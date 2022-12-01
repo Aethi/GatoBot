@@ -1,3 +1,12 @@
+'''
+    GatoBot
+
+    Todo:
+        - Clean up code by separating into modules
+        - Find some APIs to use for fun commands
+        - Add config file for bot token and other settings
+'''
+
 import asyncio
 import random
 import logging
@@ -8,28 +17,22 @@ import discord
 from discord import app_commands, Intents, Client, Interaction
 
 class StrFmt:
-    HEADER      = '\033[95m'
-    BLUE        = '\033[94m'
-    CYAN        = '\033[96m'
-    GREEN       = '\033[92m'
-    YELLOW      = '\033[93m'
-    RED         = '\033[91m'
-    RESET       = '\033[0m'
-    BOLD        = '\033[1m'
-    UNDERLINE   = '\033[4m'
+    Reset       = '\033[0m'
+    # Colors
+    Cyan        = '\033[96m'
+    Purple      = '\033[95m'
+    Blue        = '\033[94m'
+    Yellow      = '\033[93m'
+    Green       = '\033[92m'
+    Red         = '\033[91m'
+    # Decorators
+    Bold        = '\033[1m'
+    Underline   = '\033[4m'
 
 #
 # Setup
 #
-    
-'''
-    playing = 0
-    streaming = 1
-    listening = 2
-    watching = 3
-    custom = 4
-    competing = 5
-'''
+
 async def change_bot_presence():
     await client.wait_until_ready()
 
@@ -83,6 +86,19 @@ client = Gato(intents=Intents.all())
 # Discord.py library can set up logging for us, so we can just use that
 discord.utils.setup_logging()
 
+while True:
+    token = input("> ")
+
+    r = requests.get("https://discord.com/api/v10/users/@me", headers={
+        "Authorization": f"Bot {token}"
+    })
+
+    data = r.json()
+    if data.get("id", None):
+        break
+
+    logging.error(f"Invalid token: {data.get('message', 'Unknown error')}")
+
 #
 # Listeners
 #
@@ -91,14 +107,14 @@ discord.utils.setup_logging()
 async def on_ready():
     logging.info(f"Logged in as {client.user} (ID: {client.user.id})")
     logging.info(f"Discord.py version: {discord.__version__}")
-    logging.info(f"Invite link: {StrFmt.CYAN}https://discord.com/api/oauth2/authorize?client_id={client.user.id}&permissions=294678424784&scope=bot{StrFmt.RESET}" )
+    logging.info(f"Invite link: {StrFmt.Cyan}https://discord.com/api/oauth2/authorize?client_id={client.user.id}&permissions=294678424784&scope=bot{StrFmt.Reset}" )
 
 @client.event
 async def on_message_delete(message):
     if message.author.bot:
         return
 
-    logging.info(f"Message by {message.author} in {message.guild.name} deleted: {StrFmt.RED}{message.content}{StrFmt.RESET}")
+    logging.info(f"Message by {message.author} in {message.guild.name} deleted: {StrFmt.Red}{message.content}{StrFmt.Reset}")
 
 @client.event
 async def on_message(message):
@@ -167,4 +183,4 @@ async def shutdown(interaction: Interaction):
 # Run the bot
 #
 
-client.run("TOKEN", log_handler=None)
+client.run(token, log_handler=None)
