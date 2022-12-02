@@ -100,6 +100,7 @@ while True:
         exit()
 
     token = data["token"]
+    config_file.close() # Close handle now, it's not needed anymore
 
     r = requests.get("https://discord.com/api/v10/users/@me", headers={
         "Authorization": f"Bot {token}"
@@ -190,6 +191,37 @@ async def annoy(interaction: Interaction, user: discord.User, amount: int = 5):
 async def shutdown(interaction: Interaction):
     await interaction.response.send_message("https://tenor.com/view/cat-sleep-good-night-goobnite-gif-21803805")
     await client.close()
+
+@client.tree.command(description="Get information about a user (blank = server)")
+async def getinfo(interaction: Interaction, user: discord.Member = None):
+    if user == None:
+        guild = client.get_guild(interaction.guild_id)
+        embed = discord.Embed(title=guild.name, description="Server information", color=0x4169E1)
+        embed.set_thumbnail(url=guild.icon)
+        embed.add_field(name="ID", value=guild.id, inline=True)
+        embed.add_field(name="Owner", value=guild.owner, inline=True)
+        embed.add_field(name="Region", value=guild.preferred_locale, inline=True)
+        embed.add_field(name="Created at", value=guild.created_at.strftime("%b %d, %Y %I:%M %p"), inline=True)
+        embed.add_field(name="Members", value=guild.member_count, inline=True)
+        embed.add_field(name="Roles", value=len(guild.roles), inline=True)
+        embed.add_field(name="Text channels", value=len(guild.text_channels), inline=True)
+        embed.add_field(name="Voice channels", value=len(guild.voice_channels), inline=True)
+        embed.add_field(name="Categories", value=len(guild.categories), inline=True)
+        embed.set_footer(text=f"Requested by {interaction.user.name}")
+        await interaction.response.send_message(embed=embed)
+    else:
+        if user.bot:
+            return await interaction.response.send_message("🤖")
+
+        embed = discord.Embed(title=user.name, description="User information", color=0x4169E1)
+        embed.set_thumbnail(url=user.avatar)
+        embed.add_field(name="ID", value=user.id, inline=True)
+        embed.add_field(name="Created at", value=user.created_at.strftime("%b %d, %Y %I:%M %p"), inline=True)
+        embed.add_field(name="Joined at", value=user.joined_at.strftime("%b %d, %Y %I:%M %p"), inline=True)
+        embed.add_field(name="Roles", value=", ".join(filter(lambda x: not "@everyone" in x.lower(), [role.name for role in user.roles])), inline=True)
+        embed.add_field(name="Flags", value=", ".join([flag.name for flag in user.public_flags.all()]), inline=True)
+        embed.set_footer(text=f"Requested by {interaction.user.name}")
+        await interaction.response.send_message(embed=embed)
 
 #
 # Run the bot
