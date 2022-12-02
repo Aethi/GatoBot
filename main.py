@@ -151,12 +151,7 @@ async def on_message(message):
     # Stolen from Frost
     if message.content.startswith("^") or message.content.lower() == "this":
         if message.content == "^" or "this" in message.content.lower():
-            this_msg = "^"
-
-            if (random.randint(0, 100) < 50):
-                this_msg = "^ this"
-
-            await message.channel.send(this_msg)
+            await message.channel.send(random.choice([ "^", "^ this" ]))
 
     if message.content.lower() == "f":
         await message.channel.send("F")
