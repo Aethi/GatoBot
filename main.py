@@ -2,7 +2,7 @@
     GatoBot
 
     Todo:
-        - Clean up code by separating into modules
+        - Clean up code by separating into modules/cogs
         - Find some APIs to use for fun commands
 '''
 
@@ -44,11 +44,11 @@ async def change_bot_presence():
                     "the demons in my puter"
     ]
     PlayingStatus = [ "with cats",
-                      "Madden 2006 on XBOX",
+                      "Madden NFL 06 on XBOX",
                       "with lasers"
     ]
     ListeningStatus = [ "the screams of the damned",
-                        "cat activation noise compilations"
+                        f"cat activation noise compilation #{random.randint(1, 1000)}"
     ]
 
     while not client.is_closed():
@@ -187,8 +187,8 @@ async def shutdown(interaction: Interaction):
     await interaction.response.send_message("https://tenor.com/view/cat-sleep-good-night-goobnite-gif-21803805")
     await client.close()
 
-@client.tree.command(description="Get information about a user (blank = server)")
-async def getinfo(interaction: Interaction, user: discord.Member = None):
+@client.tree.command(description="Retrieve information about a user (blank = server)")
+async def info(interaction: Interaction, user: discord.Member = None):
     if user == None:
         guild = client.get_guild(interaction.guild_id)
         embed = discord.Embed(title=guild.name, description="Server information", color=0x4169E1)
