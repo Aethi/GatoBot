@@ -167,10 +167,9 @@ async def cat(interaction: Interaction):
 @client.tree.command(description="Nefarious activity")
 @app_commands.default_permissions() # Default to administrator only
 async def annoy(interaction: Interaction, user: discord.User, amount: int = 5):
-    for _i in range(min(amount, 10) - 1):
+    await interaction.response.send_message("Waking them up...", ephemeral=True, delete_after=3) # Slash commands require a response
+    for _i in range(min(amount, 10)):
         await client.get_channel(interaction.channel_id).send(user.mention, delete_after=0.0005)
-    else:
-        await interaction.response.send_message(user.mention, delete_after=0.0005) # Slash commands require a response
 
 @client.tree.command(description="Closes connection to discord")
 @app_commands.default_permissions()
@@ -193,11 +192,11 @@ async def info(interaction: Interaction, user: discord.Member = None):
         embed.add_field(name="Text channels", value=len(guild.text_channels), inline=True)
         embed.add_field(name="Voice channels", value=len(guild.voice_channels), inline=True)
         embed.add_field(name="Categories", value=len(guild.categories), inline=True)
-        embed.set_footer(text=f"Requested by {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
+        embed.set_footer(text=f"Requested by {interaction.user}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
     else:
         if user.bot:
-            return await interaction.response.send_message("🤖")
+            return await interaction.response.send_message("🤖", ephemeral=True)
 
         embed = discord.Embed(title=user.name, description="User information", color=0x4169E1)
         embed.set_thumbnail(url=user.avatar)
@@ -206,7 +205,7 @@ async def info(interaction: Interaction, user: discord.Member = None):
         embed.add_field(name="Joined at", value=user.joined_at.strftime("%b %d, %Y %I:%M %p"), inline=True)
         embed.add_field(name="Roles", value=", ".join(filter(lambda x: not "@everyone" in x.lower(), [role.name for role in user.roles])), inline=True)
         embed.add_field(name="Flags", value=", ".join([flag.name for flag in user.public_flags.all()]), inline=True)
-        embed.set_footer(text=f"Requested by {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
+        embed.set_footer(text=f"Requested by {interaction.user}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
 
 #
