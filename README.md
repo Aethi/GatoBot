@@ -1,8 +1,6 @@
 # GatoBot
 
-Discord bot with the main purpose of spamming cats, but also to mess around with Python while OS agnostic.
-
-Tested on Windows 11 & Manjaro Linux
+Discord bot with the main purpose of spamming cats, but also to mess around with Python while not depending on funny little OS dependent modules.
 
 ## Requirements
 
