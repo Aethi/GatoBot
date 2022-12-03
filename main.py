@@ -4,6 +4,7 @@
     Todo:
         - Clean up code by separating into modules/cogs
         - Find some APIs to use for fun commands
+        - Add permission bits to config file
 '''
 
 import asyncio
@@ -38,34 +39,24 @@ async def change_bot_presence():
     servers  = "server" if len(client.guilds) == 1 else "servers"
     gremlins = "gremlin" if len(client.users) == 1 else "gremlins"
 
-    WatchingStatus = [ "cat videos", 
-                    f"{len(client.users)} {gremlins} in {len(client.guilds)} {servers}", 
-                    "Jerma compilations",
-                    "the demons in my puter"
-    ]
-    PlayingStatus = [ "with cats",
-                      "Madden NFL 06 on XBOX",
-                      "with lasers"
-    ]
-    ListeningStatus = [ "the screams of the damned",
-                        f"cat activation noise compilation #{random.randint(1, 1000)}"
-    ]
+    status = {
+        1: {"Activity": discord.ActivityType.watching,  
+            "Status": ["cat videos", f"{len(client.users)} {gremlins} in {len(client.guilds)} {servers}", "Jerma compilations", "the demons in my puter"]},
+
+        2: {"Activity": discord.ActivityType.playing,   
+            "Status": ["with cats", "Madden NFL 06 on XBOX", "with lasers"]},
+
+        3: {"Activity": discord.ActivityType.listening, 
+            "Status": ["the screams of the damned", f"cat activation noise compilation #{random.randint(1, 1000)}"]},
+    }
+
+    index    = random.randint( 1, 3 )
+    activity = status[index]["Activity"]
+    string   = random.choice(status[index]["Status"])
 
     while not client.is_closed():
-        # This is most likely a horrible way to do this, but I don't have enough energy to figure out layered dictionaries right now..
-        ArrayNum = random.randint(1, 3)
-        if ArrayNum == 1:
-            Activity = discord.ActivityType.watching
-            Status = random.choice(WatchingStatus)
-        elif ArrayNum == 2:
-            Activity = discord.ActivityType.playing
-            Status = random.choice(PlayingStatus)
-        elif ArrayNum == 3:
-            Activity = discord.ActivityType.listening
-            Status = random.choice(ListeningStatus)
-
         await client.change_presence(activity=discord.Activity(
-            type=Activity, name=Status
+            type=activity, name=string
         ))
         await asyncio.sleep(60 * 5) # 5 minutes
 
