@@ -1,6 +1,8 @@
 # GatoBot
 
-Discord bot with the main purpose of spamming cats, but also to mess around with Python - *should* be OS agnostic.
+Discord bot with the main purpose of spamming cats, but also to mess around with Python while OS agnostic.
+
+Tested on Windows 11 & Manjaro Linux
 
 ## Requirements
 
@@ -11,8 +13,9 @@ Discord bot with the main purpose of spamming cats, but also to mess around with
 ## Quick Setup
 
 * Install [Python](https://www.python.org/downloads/)
-* Open a terminal in the folder with the project files
+* Open a Terminal in your wanted working directory
+* Run `git clone https://github.com/Aethi/DiscordBot.git`
 * Run `pip install -r requirements.txt`
-* Run `py main.py` or `python3 main.py`
+* Run `py main.py` or `python main.py`
 * Paste your bot's token in the newly created config.json
 * Restart the bot
