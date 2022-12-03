@@ -160,7 +160,7 @@ async def cat(interaction: Interaction):
     r = requests.get("https://cataas.com/cat?json=true", headers={
         "accept": f"*/*"
     })
-    
+
     # Send the cat back to the user
     await interaction.response.send_message("https://cataas.com" + r.json()["url"]) # TODO: Proper embed for gif support, possibly add args for tags
 
@@ -193,7 +193,7 @@ async def info(interaction: Interaction, user: discord.Member = None):
         embed.add_field(name="Text channels", value=len(guild.text_channels), inline=True)
         embed.add_field(name="Voice channels", value=len(guild.voice_channels), inline=True)
         embed.add_field(name="Categories", value=len(guild.categories), inline=True)
-        embed.set_footer(text=f"Requested by {interaction.user.name}")
+        embed.set_footer(text=f"Requested by {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
     else:
         if user.bot:
@@ -206,7 +206,7 @@ async def info(interaction: Interaction, user: discord.Member = None):
         embed.add_field(name="Joined at", value=user.joined_at.strftime("%b %d, %Y %I:%M %p"), inline=True)
         embed.add_field(name="Roles", value=", ".join(filter(lambda x: not "@everyone" in x.lower(), [role.name for role in user.roles])), inline=True)
         embed.add_field(name="Flags", value=", ".join([flag.name for flag in user.public_flags.all()]), inline=True)
-        embed.set_footer(text=f"Requested by {interaction.user.name}")
+        embed.set_footer(text=f"Requested by {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
 
 #
