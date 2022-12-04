@@ -31,8 +31,7 @@ class Chat(commands.Cog):
         # My favorite CBot feature
         # https://github.com/FFrost/CBot/blob/master/cogs/messages.py#L54
         if message.content.startswith("^") or message.content.lower() == "this":
-            if message.content == "^" or "this" in message.content.lower():
-                await message.channel.send(random.choice([ "^", "^ this" ]))
+            await message.channel.send(random.choice([ "^", "^ this" ]))
 
         if message.content.lower() == "f":
             await message.channel.send("F")

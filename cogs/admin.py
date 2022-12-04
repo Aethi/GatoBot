@@ -31,6 +31,82 @@ class Admin(commands.Cog):
         await interaction.response.send_message("https://tenor.com/view/cat-sleep-good-night-goobnite-gif-21803805", ephemeral=True)
         await self.bot.close()
 
+    @app_commands.command(
+        name="load",
+        description="Loads a cog"
+    )
+    @app_commands.default_permissions()
+    async def load(self, interaction: discord.Interaction, cog: str) -> None:
+        try:
+            cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
+            await self.bot.load_extension(cog_str)
+        except commands.ExtensionAlreadyLoaded:
+            await interaction.response.send_message("Cog is already loaded", ephemeral=True)
+        except commands.ExtensionNotFound:
+            await interaction.response.send_message("Cog not found", ephemeral=True)
+        except commands.ExtensionFailed or commands.NoEntryPointError:
+            await interaction.response.send_message("Cog failed to load", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"Loaded `{cog_str}`", ephemeral=True)
+
+    @app_commands.command(
+        name="reload",
+        description="Reloads a cog"
+    )
+    @app_commands.default_permissions()
+    async def reload(self, interaction: discord.Interaction, cog: str) -> None:
+        try:
+            # Avoid locking out cog management
+            if cog == "admin":
+                await interaction.response.send_message("cogs.admin is a required cog", ephemeral=True)
+                return
+
+            cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
+            await self.bot.reload_extension(cog_str)
+        except commands.ExtensionNotLoaded:
+            await interaction.response.send_message("Cog is not loaded", ephemeral=True)
+        except commands.ExtensionNotFound:
+            await interaction.response.send_message("Cog not found", ephemeral=True)
+        except commands.ExtensionFailed or commands.NoEntryPointError:
+            await interaction.response.send_message("Cog failed to load", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"Reloaded `{cog_str}`", ephemeral=True)
+
+    @app_commands.command(
+        name="unload",
+        description="Unloads a cog"
+    )
+    @app_commands.default_permissions()
+    async def unload(self, interaction: discord.Interaction, cog: str) -> None:
+        try:
+            # Avoid locking out cog management
+            if cog == "admin":
+                await interaction.response.send_message("cogs.admin is a required cog", ephemeral=True)
+                return
+
+            cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
+            await self.bot.unload_extension(cog_str)
+        except commands.ExtensionNotLoaded:
+            await interaction.response.send_message("Cog is not loaded", ephemeral=True)
+        except commands.ExtensionNotFound:
+            await interaction.response.send_message("Cog not found", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"Unloaded `{cog_str}`", ephemeral=True)
+
+    @app_commands.command(
+        name="cogs",
+        description="Lists all loaded cogs"
+    )
+    @app_commands.default_permissions()
+    async def cogs(self, interaction: discord.Interaction) -> None:
+        cogs = self.bot.extensions
+        cog_list = ""
+
+        for cog in cogs:
+            cog_list += f"`{cog}` "
+        
+        await interaction.response.send_message(cog_list, ephemeral=True)
+
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
         if message.author.bot:
