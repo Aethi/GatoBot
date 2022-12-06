@@ -1,16 +1,17 @@
 # GatoBot - couldntbe.me
 
+# Standard imports
+import sys
+import logging
+import json
+import requests
+
 # Discord imports
 import discord
 from discord.ext import commands
 
 # Our imports
-from strformat import StrFmt
-
-# Standard imports
-import requests
-import logging
-import json
+from helpers import StrFmt
 
 # Use Discord.py's prewritten logger format
 discord.utils.setup_logging()
@@ -42,26 +43,26 @@ class GatoBot(commands.Bot):
 
 while True:
     try:
-        with open("config.json") as config_file:
+        with open("config.json", encoding="utf-8") as config_file:
             data = json.load(config_file)
     except FileNotFoundError:
-        with open("config.json", "w") as config_file:
-            config_file.write(json.dumps( 
-                { 
+        with open("config.json", "w", encoding="utf-8") as config_file:
+            config_file.write(json.dumps(
+                {
                     "token": "bot_token_here"
                 }, indent=4 ))
 
-        logging.error(f"Please fill out config.json file with your bot token!")
-        exit()
+        logging.error("Please fill out config.json file with your bot token!")
+        sys.exit()
 
     token = data["token"]
     config_file.close() # Close handle now, it's not needed anymore
 
-    r = requests.get("https://discord.com/api/v10/users/@me", headers={
-        "Authorization": f"Bot {token}"
-    })
+    response = requests.get("https://discord.com/api/v10/users/@me", headers={
+        "Authorization": f"Bot {token}",
+    }, timeout=30)
 
-    data = r.json()
+    data = response.json()
     if data.get("id", None):
         break
 

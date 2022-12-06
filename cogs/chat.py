@@ -1,7 +1,7 @@
+import random
+
 import discord
 from discord.ext import commands
-
-import random
 
 class Chat(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
