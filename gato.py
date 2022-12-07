@@ -26,7 +26,7 @@ class GatoBot(commands.Bot):
         self.initial_extensions = [
             'cogs.admin',
             'cogs.chat',
-            'cogs.rpc',
+            'cogs.activity',
             'cogs.fun'
         ]
 
