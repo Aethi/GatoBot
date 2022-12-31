@@ -1,7 +1,8 @@
 # GatoBot - couldntbe.me
 
 # Standard imports
-import sys
+import os
+import glob
 import logging
 import json
 import requests
@@ -23,16 +24,35 @@ class GatoBot(commands.Bot):
             intents=discord.Intents.all()
         )
 
-        self.initial_extensions = [
-            'cogs.admin',
-            'cogs.chat',
-            'cogs.activity',
-            'cogs.fun'
-        ]
+        self.token = ""
+        self.path  = os.path.dirname(os.path.realpath(__file__))
+
+        self.loaded_cogs = {}
+
+        logging.info("Loading config...")
+        self.load_config()
 
     async def setup_hook(self):
-        for ext in self.initial_extensions:
-            await self.load_extension(ext)
+        logging.info("Loading cogs...")
+
+        cogs = glob.glob((self.path + "/cogs/") + "*.py")
+        for i, path in enumerate(cogs):
+            cog_name = os.path.basename(path).replace(".py", "")
+            ext = "cogs." + cog_name
+
+            try:
+                await self.load_extension(ext)
+            except discord.DiscordException as error:
+                logging.error(f"Failed to load cog \"{ext}\" ({error})")
+                self.loaded_cogs[cog_name] = {"ext": ext, "loaded": False}
+            else:
+                logging.info(f"[{i + 1}/{len(cogs)}] Loaded {ext}")
+                self.loaded_cogs[cog_name] = {"ext": ext, "loaded": True}
+
+        if len(self.loaded_cogs) == len(cogs):
+            logging.info("All cogs loaded successfully")
+        else:
+            logging.error(f"Loaded {len(self.loaded_cogs)}/{len(cogs)} cogs - please check console")
 
         await self.tree.sync()
 
@@ -41,32 +61,46 @@ class GatoBot(commands.Bot):
         logging.info(f"Discord.py version: {discord.__version__}")
         logging.info(f"Invite link: {StrFmt.Cyan}https://discord.com/api/oauth2/authorize?client_id={self.user.id}&permissions=294678424784&scope=bot{StrFmt.Reset}")
 
-while True:
-    try:
-        with open("config.json", encoding="utf-8") as config_file:
-            data = json.load(config_file)
-    except FileNotFoundError:
-        with open("config.json", "w", encoding="utf-8") as config_file:
-            config_file.write(json.dumps(
-                {
-                    "token": "bot_token_here"
-                }, indent=4 ))
+    def load_config(self):
+        # Try to load config, if it doesn't exist, create one & retry
+        for _ in range(2):
+            try:
+                with open("config.json", encoding="utf-8") as config_file:
+                    data = json.load(config_file)
+            except FileNotFoundError:
+                logging.error("Config not found, creating one...")
+                with open("config.json", "w", encoding="utf-8") as config_file:
+                    new_token = input("Please enter your bot token: ")
 
-        logging.error("Please fill out config.json file with your bot token!")
-        sys.exit()
+                    config_file.write(json.dumps(
+                        {
+                            "token": new_token
+                        }, indent=4 ))
 
-    token = data["token"]
-    config_file.close() # Close handle now, it's not needed anymore
+                    logging.info("Token saved to config, reloading...")
+                    continue
+            break
 
-    response = requests.get("https://discord.com/api/v10/users/@me", headers={
-        "Authorization": f"Bot {token}",
-    }, timeout=30)
+        self.token = data["token"]
+        config_file.close() # Close handle now, it's not needed anymore
 
-    data = response.json()
-    if data.get("id", None):
-        break
+        response = requests.get("https://discord.com/api/v10/users/@me", headers={
+            "Authorization": f"Bot {self.token}",
+        }, timeout=30)
 
-    logging.error(f"Invalid token: {data.get('message', 'Unknown error')}")
+        data = response.json()
+        if data.get("id", None):
+            logging.info("Config loaded")
+            return
 
-bot = GatoBot()
-bot.run(token, log_handler=None)
+        logging.error(f"Invalid token: {data.get('message', 'Unknown error')}")
+
+    def run(self):
+        super().run(self.token, log_handler=None)
+
+def main():
+    bot = GatoBot()
+    bot.run()
+
+if __name__ == "__main__":
+    main()

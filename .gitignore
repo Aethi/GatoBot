@@ -2,3 +2,4 @@ config.json
 .vscode/*
 __pycache__/*
 cogs/__pycache__/*
+tmp
