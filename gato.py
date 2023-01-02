@@ -46,13 +46,8 @@ class GatoBot(commands.Bot):
                 logging.error(f"Failed to load cog \"{ext}\" ({error})")
                 self.loaded_cogs[cog_name] = {"ext": ext, "loaded": False}
             else:
-                logging.info(f"[{i + 1}/{len(cogs)}] Loaded {ext}")
+                logging.info(f"Loaded {ext} ".ljust(25, '.') + f" {(((i + 1) / len(cogs))):.0%}")
                 self.loaded_cogs[cog_name] = {"ext": ext, "loaded": True}
-
-        if len(self.loaded_cogs) == len(cogs):
-            logging.info("All cogs loaded successfully")
-        else:
-            logging.error(f"Loaded {len(self.loaded_cogs)}/{len(cogs)} cogs - please check console")
 
         await self.tree.sync()
 

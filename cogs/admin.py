@@ -31,7 +31,15 @@ class Admin(commands.Cog):
         await interaction.response.send_message("https://tenor.com/view/cat-sleep-good-night-goobnite-gif-21803805", ephemeral=True)
         await self.bot.close()
 
+    async def cog_choices(self, _, current: str ) -> list[app_commands.Choice[str]]:
+        choices = self.bot.loaded_cogs
+        return [
+            app_commands.Choice(name=choice, value=choice)
+            for choice in choices if current.lower() in choice.lower()
+        ]
+
     @app_commands.command(name="load", description="Loads a cog")
+    @app_commands.autocomplete(cog=cog_choices)
     @app_commands.default_permissions()
     async def load(self, interaction: discord.Interaction, cog: str) -> None:
         try:
@@ -44,6 +52,7 @@ class Admin(commands.Cog):
             await interaction.response.send_message(f"\\✔️ Loaded ***{cog_str}***", ephemeral=True)
 
     @app_commands.command(name="reload", description="Reloads a cog")
+    @app_commands.autocomplete(cog=cog_choices)
     @app_commands.default_permissions()
     async def reload(self, interaction: discord.Interaction, cog: str) -> None:
         try:
@@ -60,6 +69,7 @@ class Admin(commands.Cog):
             await interaction.response.send_message(f"\\🔄 Reloaded ***{cog_str}***", ephemeral=True)
 
     @app_commands.command(name="unload", description="Unloads a cog")
+    @app_commands.autocomplete(cog=cog_choices)
     @app_commands.default_permissions()
     async def unload(self, interaction: discord.Interaction, cog: str) -> None:
         try:
