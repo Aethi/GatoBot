@@ -92,8 +92,8 @@ class Admin(commands.Cog):
         cogs = self.bot.loaded_cogs
         cog_list = ""
 
-        for cog, info in cogs:
-            if info['loaded']:
+        for cog in cogs:
+            if cogs[cog]['loaded']:
                 cog_list += f"\\✔️ {cog.capitalize()}\n"
             else:
                 cog_list += f"\\❌ {cog.capitalize()}\n"
