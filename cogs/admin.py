@@ -4,10 +4,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from helpers import StrFmt
+from modules.helpers import StrFmt as fmt
 
 class Admin(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot) -> None:
         self.bot = bot
 
     @app_commands.command(name="annoy", description="Nefarious activities")
@@ -37,16 +37,11 @@ class Admin(commands.Cog):
         try:
             cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
             await self.bot.load_extension(cog_str)
-        except commands.ExtensionAlreadyLoaded:
-            await interaction.response.send_message("Cog is already loaded", ephemeral=True)
-        except commands.ExtensionNotFound:
-            await interaction.response.send_message("Cog not found", ephemeral=True)
-        except commands.NoEntryPointError:
-            await interaction.response.send_message("Cog failed to load", ephemeral=True)
-        except commands.ExtensionFailed:
-            await interaction.response.send_message("Cog failed to load", ephemeral=True)
+            self.bot.loaded_cogs[cog]['loaded'] = True
+        except (commands.ExtensionAlreadyLoaded, commands.ExtensionNotFound, commands.NoEntryPointError, commands.ExtensionFailed) as error:
+            await interaction.response.send_message(f"{error}", ephemeral=True)
         else:
-            await interaction.response.send_message(f"Loaded `{cog_str}`", ephemeral=True)
+            await interaction.response.send_message(f"\\✔️ Loaded ***{cog_str}***", ephemeral=True)
 
     @app_commands.command(name="reload", description="Reloads a cog")
     @app_commands.default_permissions()
@@ -59,16 +54,10 @@ class Admin(commands.Cog):
 
             cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
             await self.bot.reload_extension(cog_str)
-        except commands.ExtensionNotLoaded:
-            await interaction.response.send_message("Cog is not loaded", ephemeral=True)
-        except commands.ExtensionNotFound:
-            await interaction.response.send_message("Cog not found", ephemeral=True)
-        except commands.NoEntryPointError:
-            await interaction.response.send_message("Cog failed to load", ephemeral=True)
-        except commands.ExtensionFailed:
-            await interaction.response.send_message("Cog failed to load", ephemeral=True)
+        except (commands.ExtensionNotLoaded, commands.ExtensionNotFound, commands.NoEntryPointError, commands.ExtensionFailed) as error:
+            await interaction.response.send_message(f"{error}", ephemeral=True)
         else:
-            await interaction.response.send_message(f"Reloaded `{cog_str}`", ephemeral=True)
+            await interaction.response.send_message(f"\\🔄 Reloaded ***{cog_str}***", ephemeral=True)
 
     @app_commands.command(name="unload", description="Unloads a cog")
     @app_commands.default_permissions()
@@ -81,21 +70,23 @@ class Admin(commands.Cog):
 
             cog_str = f"cogs.{cog}" if not cog.startswith("cogs.") else cog
             await self.bot.unload_extension(cog_str)
-        except commands.ExtensionNotLoaded:
-            await interaction.response.send_message("Cog is not loaded", ephemeral=True)
-        except commands.ExtensionNotFound:
-            await interaction.response.send_message("Cog not found", ephemeral=True)
+            self.bot.loaded_cogs[cog]['loaded'] = False
+        except (commands.ExtensionNotLoaded, commands.ExtensionNotFound) as error:
+            await interaction.response.send_message(f"{error}", ephemeral=True)
         else:
-            await interaction.response.send_message(f"Unloaded `{cog_str}`", ephemeral=True)
+            await interaction.response.send_message(f"\\❌ Unloaded ***{cog_str}***\n", ephemeral=True)
 
-    @app_commands.command(name="cogs", description="Lists all loaded cogs")
+    @app_commands.command(name="cogs", description="Lists all cogs")
     @app_commands.default_permissions()
-    async def cogs(self, interaction: discord.Interaction) -> None:
-        cogs = self.bot.extensions
+    async def cogs(self, interaction: discord.Interaction):
+        cogs = self.bot.loaded_cogs
         cog_list = ""
 
-        for cog in cogs:
-            cog_list += f"`{cog}` "
+        for cog, info in cogs:
+            if info['loaded']:
+                cog_list += f"\\✔️ {cog.capitalize()}\n"
+            else:
+                cog_list += f"\\❌ {cog.capitalize()}\n"
 
         await interaction.response.send_message(cog_list, ephemeral=True)
 
@@ -104,7 +95,7 @@ class Admin(commands.Cog):
         if message.author.bot:
             return
 
-        logging.info(f"Message by {message.author} in {message.guild.name} deleted: {StrFmt.Red}{message.content}{StrFmt.Reset}")
+        logging.info(f"Message by {message.author} in {message.guild.name} deleted: {fmt.Red}{message.content}{fmt.Reset}")
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Admin(bot))

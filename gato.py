@@ -12,7 +12,7 @@ import discord
 from discord.ext import commands
 
 # Our imports
-from helpers import StrFmt
+from modules.helpers import StrFmt as fmt
 
 # Use Discord.py's prewritten logger format
 discord.utils.setup_logging()
@@ -59,7 +59,7 @@ class GatoBot(commands.Bot):
     async def on_ready(self):
         logging.info(f"Logged in as {self.user} (ID: {self.user.id})")
         logging.info(f"Discord.py version: {discord.__version__}")
-        logging.info(f"Invite link: {StrFmt.Cyan}https://discord.com/api/oauth2/authorize?client_id={self.user.id}&permissions=294678424784&scope=bot{StrFmt.Reset}")
+        logging.info(f"Invite link: {fmt.Cyan}https://discord.com/api/oauth2/authorize?client_id={self.user.id}&permissions=294678424784&scope=bot{fmt.Reset}")
 
     def load_config(self):
         # Try to load config, if it doesn't exist, create one & retry
@@ -67,6 +67,7 @@ class GatoBot(commands.Bot):
             try:
                 with open("config.json", encoding="utf-8") as config_file:
                     data = json.load(config_file)
+                    break
             except FileNotFoundError:
                 logging.error("Config not found, creating one...")
                 with open("config.json", "w", encoding="utf-8") as config_file:
@@ -79,7 +80,6 @@ class GatoBot(commands.Bot):
 
                     logging.info("Token saved to config, reloading...")
                     continue
-            break
 
         self.token = data["token"]
         config_file.close() # Close handle now, it's not needed anymore
