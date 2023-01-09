@@ -77,7 +77,6 @@ class GatoBot(commands.Bot):
                     continue
 
         self.token = data["token"]
-        config_file.close() # Close handle now, it's not needed anymore
 
         response = requests.get("https://discord.com/api/v10/users/@me", headers={
             "Authorization": f"Bot {self.token}",

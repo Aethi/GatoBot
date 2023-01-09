@@ -25,16 +25,19 @@ class Media(commands.Cog):
         path = youtube.streams.get_highest_resolution().download(output_path=self.tmp_dir)
 
         if audio:
-            # The fact that this is just allowed...
             base, _ = os.path.splitext(path)
             new_file = base + '.mp3'
             os.rename(path, new_file)
 
-            await self.bot.get_channel(interaction.channel_id).send(f"Downloaded {youtube.title}", file=discord.File(new_file))
-            os.remove(new_file)
-            return
+            path = new_file
 
-        await self.bot.get_channel(interaction.channel_id).send(f"Downloaded {youtube.title}", file=discord.File(path))
+        try:
+            await self.bot.get_channel(interaction.channel_id).send(f"Downloaded {youtube.title}", file=discord.File(path))
+        except discord.errors.HTTPException as error:
+            # 413 Payload too large -- 8MB limit for standard users, 50MB for lvl2 boosted server, 100MB for lvl3 boosted server
+            if error.code == 40005:
+                await self.bot.get_channel(interaction.channel_id).send(f"File too large to send ({(os.path.getsize(path) / 1048576):.3} MB)")
+
         os.remove(path)
 
 async def setup(bot: commands.Bot) -> None:
