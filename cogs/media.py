@@ -14,13 +14,13 @@ class Media(commands.Cog):
     async def ytdl(self, interaction: discord.Interaction, url: str, audio: bool = False) -> None:
         youtube = YouTube(url)
 
-        await interaction.response.send_message(f"Downloading {youtube.title}...")
+        await interaction.response.send_message(f"Downloading {youtube.title}...", ephemeral=True, delete_after=5)
 
-        if youtube.age_restricted is True:
+        if youtube.age_restricted is True: # Sometimes just isn't reported, instead the request will just fail
             try:
                 youtube.bypass_age_gate()
             except exceptions.AgeRestrictedError as error:
-                return await self.bot.get_channel(interaction.channel_id).send(f"{error}")
+                return await interaction.channel.send(f"{interaction.user.mention} > /ytdl\n> {error}")
 
         path = youtube.streams.get_highest_resolution().download(output_path=self.tmp_dir)
 
@@ -32,11 +32,11 @@ class Media(commands.Cog):
             path = new_file
 
         try:
-            await self.bot.get_channel(interaction.channel_id).send(f"Downloaded {youtube.title}", file=discord.File(path))
+            await interaction.channel.send(f"{interaction.user.mention} > /ytdl\n> Downloaded {youtube.title}", file=discord.File(path))
         except discord.errors.HTTPException as error:
             # 413 Payload too large -- 8MB limit for standard users, 50MB for lvl2 boosted server, 100MB for lvl3 boosted server
             if error.code == 40005:
-                await self.bot.get_channel(interaction.channel_id).send(f"File too large to send ({(os.path.getsize(path) / 1048576):.3} MB)")
+                await interaction.channel.send(f"{interaction.user.mention} > /ytdl\n> File too large to send ({(os.path.getsize(path) / 1048576):.3} MB)")
 
         os.remove(path)
 
