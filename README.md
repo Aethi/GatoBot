@@ -15,5 +15,5 @@ Discord bot with the main purpose of spamming cats, but also to mess around with
 * Run `git clone https://github.com/Aethi/GatoBot.git`
 * Run `pip install -r requirements.txt`
 * Run `py gato.py` or `python gato.py`
-* Paste [your bot's token](https://discord.com/developers/docs/getting-started) in the newly created config.json
-* Restart the bot
+* Paste [your bot's token](https://discord.com/developers/docs/getting-started) into the terminal when prompted
+* Invite the bot to your server using the printed link
